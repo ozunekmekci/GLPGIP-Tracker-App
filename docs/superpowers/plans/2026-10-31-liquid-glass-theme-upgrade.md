@@ -115,12 +115,12 @@ git commit -m "feat: enhance dashboard with liquid glass and overdue injection l
 - Modify: `src/app/(tabs)/medication.tsx`
 - Modify: `src/app/(tabs)/analytics.tsx`
 
-- [ ] **Step 1: `settings.tsx` ekranına iOS segmented tema seçiciyi ekle** (`[Sistem] [Açık] [Koyu]`).
-- [ ] **Step 2: `medication.tsx` ve `analytics.tsx` ekranlarını `GlassCard` ve yeni tema tokenlarına bağla**.
-- [ ] **Step 3: Tip ve lint kontrollerini çalıştır**
+- [x] **Step 1: `settings.tsx` ekranına iOS segmented tema seçiciyi ekle** (`[Sistem] [Açık] [Koyu]`).
+- [x] **Step 2: `medication.tsx` ve `analytics.tsx` ekranlarını `GlassCard` ve yeni tema tokenlarına bağla**.
+- [x] **Step 3: Tip ve lint kontrollerini çalıştır**
 Run: `npm test && npx tsc --noEmit && npx eslint .`
 Expected: PASS
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 ```bash
 git add src/app/(tabs)/settings.tsx src/app/(tabs)/medication.tsx src/app/(tabs)/analytics.tsx
 git commit -m "feat: add theme selector in settings and upgrade remaining screens to liquid glass"
@@ -130,7 +130,7 @@ git commit -m "feat: add theme selector in settings and upgrade remaining screen
 
 ### Task 6: Bütünsel Doğrulama ve Canlı Yayına Alma
 
-- [ ] **Step 1: Tüm testleri çalıştır** (`npm test`).
-- [ ] **Step 2: Tip kontrolü ve linter** (`npx tsc --noEmit && npx eslint .`).
-- [ ] **Step 3: Web derleme kontrolü** (`npx expo export -p web`).
-- [ ] **Step 4: GitHub'a pushla** (`git push origin main`).
+- [x] **Step 1: Tüm testleri çalıştır** (`npm test`).
+- [x] **Step 2: Tip kontrolü ve linter** (`npx tsc --noEmit && npx eslint .`).
+- [x] **Step 3: Web derleme kontrolü** (`npx expo export -p web`).
+- [x] **Step 4: GitHub'a pushla** (`git push origin main`).
