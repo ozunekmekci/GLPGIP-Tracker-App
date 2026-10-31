@@ -100,7 +100,7 @@
 
 ### Task 7: Bütünsel Doğrulama ve Canlı Yayına Alma
 
-- [ ] **Step 1: Tüm birim testlerini çalıştır** (`npm test`).
-- [ ] **Step 2: Tip kontrolü ve linter** (`npx tsc --noEmit && npx eslint .`).
-- [ ] **Step 3: Web derleme doğrulaması** (`npx expo export -p web`).
-- [ ] **Step 4: GitHub'a pushla** (`git push origin main`).
+- [x] **Step 1: Tüm birim testlerini çalıştır** (`npm test`).
+- [x] **Step 2: Tip kontrolü ve linter** (`npx tsc --noEmit && npx eslint .`).
+- [x] **Step 3: Web derleme doğrulaması** (`npx expo export -p web`).
+- [x] **Step 4: GitHub'a pushla** (`git push origin main`).
