@@ -54,10 +54,10 @@
 - Create: `src/services/calendar-helpers.test.ts`
 - Create: `src/app/(tabs)/calendar.tsx`
 
-- [ ] **Step 1: Takvim yardımcı fonksiyonlarını ve birim testlerini yaz** (aylık günler ızgarası, enjeksiyon günü eşleştirmeleri, sonraki doz projeksiyonu).
-- [ ] **Step 2: `calendar.tsx` ekranını geliştir** (`AmbientMesh`, aylık takvim, gün detay kartı, aktif ilaç seviyesi projeksiyonu, hızlı doz ekleme).
-- [ ] **Step 3: Test ve tip kontrollerini çalıştır**.
-- [ ] **Step 4: Commit** (`git commit -m "feat: implement calendar tab with injection scheduling and projections"`).
+- [x] **Step 1: Takvim yardımcı fonksiyonlarını ve birim testlerini yaz** (aylık günler ızgarası, enjeksiyon günü eşleştirmeleri, sonraki doz projeksiyonu).
+- [x] **Step 2: `calendar.tsx` ekranını geliştir** (`AmbientMesh`, aylık takvim, gün detay kartı, aktif ilaç seviyesi projeksiyonu, hızlı doz ekleme).
+- [x] **Step 3: Test ve tip kontrollerini çalıştır**.
+- [x] **Step 4: Commit** (`git commit -m "feat: implement calendar tab with injection scheduling and projections"`).
 
 ---
 
