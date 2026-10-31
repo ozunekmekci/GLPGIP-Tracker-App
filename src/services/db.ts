@@ -471,6 +471,27 @@ export async function saveNutritionLog(
   return newLog;
 }
 
+export async function getAllNutritionLogs(): Promise<NutritionLog[]> {
+  const db = await initDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    protein_g: number;
+    water_ml: number;
+    date: string;
+    created_at: string;
+    updated_at: string;
+  }>('SELECT * FROM nutrition_logs ORDER BY date DESC;');
+
+  return rows.map((row) => ({
+    id: row.id,
+    proteinG: Number(row.protein_g),
+    waterMl: Number(row.water_ml),
+    date: row.date,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
 // -------------------------------------------------------------
 // User Settings
 // -------------------------------------------------------------

@@ -4,13 +4,36 @@ export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        headerLargeTitle: true,
         headerShadowVisible: false,
       }}>
       <Stack.Screen
-        name="index"
+        name="(tabs)"
         options={{
-          title: 'Laboratuvar',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="modal-log-injection"
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+          title: 'Enjeksiyon Kaydet',
+        }}
+      />
+      <Stack.Screen
+        name="modal-log-weight"
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+          title: 'Kilo Kaydet',
+        }}
+      />
+      <Stack.Screen
+        name="modal-log-symptom"
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+          title: 'Yan Etki Kaydet',
         }}
       />
     </Stack>

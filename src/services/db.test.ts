@@ -12,6 +12,7 @@ import {
   addSymptomLog,
   deleteSymptomLog,
   getNutritionLog,
+  getAllNutritionLogs,
   saveNutritionLog,
   getUserSettings,
   updateUserSettings,
@@ -158,6 +159,9 @@ const mockDatabase = {
       let rows = [...(mockState.tables['nutrition_logs'] || [])];
       if (/WHERE\s+date\s*=\s*\?/i.test(sql)) {
         rows = rows.filter((r) => r.date === params[0]);
+      }
+      if (/ORDER\s+BY\s+date\s+DESC/i.test(sql)) {
+        rows.sort((a, b) => b.date.localeCompare(a.date));
       }
       return rows as unknown as T[];
     }
@@ -443,6 +447,16 @@ describe('SQLite Database & Repository Layer (db.ts)', () => {
       expect(allRows.length).toBe(1);
       expect(allRows[0].protein_g).toBe(120);
       expect(allRows[0].water_ml).toBe(3000);
+    });
+
+    it('retrieves all nutrition logs ordered by date', async () => {
+      await saveNutritionLog('2026-10-30', 95, 2200);
+      await saveNutritionLog('2026-10-31', 110, 2500);
+
+      const logs = await getAllNutritionLogs();
+      expect(logs.length).toBe(2);
+      expect(logs[0].date).toBe('2026-10-31');
+      expect(logs[1].date).toBe('2026-10-30');
     });
   });
 
