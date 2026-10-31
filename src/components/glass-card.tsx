@@ -21,57 +21,73 @@ export interface GlassCardProps {
   padded?: boolean;
   onPress?: () => void;
   testID?: string;
+  glowColor?: string;
 }
 
 export interface GlassCardStyleResult {
   backgroundColor: string;
-  borderColor: string;
-  borderWidth: number;
   borderRadius: number;
   overflow: 'hidden';
+  borderTopWidth: number;
+  borderTopColor: string;
+  borderBottomWidth: number;
+  borderBottomColor: string;
+  borderLeftWidth: number;
+  borderRightWidth: number;
+  borderLeftColor: string;
+  borderRightColor: string;
+  shadowColor: string;
+  shadowOffset: { width: number; height: number };
+  shadowOpacity: number;
+  shadowRadius: number;
+  elevation: number;
 }
 
 export function getGlassCardStyles(
   isDark: boolean,
   variant: GlassCardVariant = 'default'
 ): GlassCardStyleResult {
-  const baseRadius = 20;
-  const borderWidth = StyleSheet.hairlineWidth;
+  const borderRadius = 24;
+  const hairlineWidth = StyleSheet.hairlineWidth;
 
+  let backgroundColor: string;
   if (variant === 'prominent') {
-    return {
-      backgroundColor: isDark
-        ? 'rgba(44, 44, 46, 0.80)'
-        : 'rgba(255, 255, 255, 0.85)',
-      borderColor: isDark
-        ? 'rgba(255, 255, 255, 0.22)'
-        : 'rgba(0, 0, 0, 0.14)',
-      borderWidth,
-      borderRadius: baseRadius,
-      overflow: 'hidden',
-    };
-  }
-
-  if (variant === 'subtle') {
-    return {
-      backgroundColor: isDark
-        ? 'rgba(28, 28, 30, 0.40)'
-        : 'rgba(255, 255, 255, 0.45)',
-      borderColor: isDark
-        ? 'rgba(255, 255, 255, 0.08)'
-        : 'rgba(0, 0, 0, 0.04)',
-      borderWidth,
-      borderRadius: baseRadius,
-      overflow: 'hidden',
-    };
+    backgroundColor = isDark
+      ? 'rgba(44, 44, 46, 0.80)'
+      : 'rgba(255, 255, 255, 0.85)';
+  } else if (variant === 'subtle') {
+    backgroundColor = isDark
+      ? 'rgba(28, 28, 30, 0.40)'
+      : 'rgba(255, 255, 255, 0.45)';
+  } else {
+    backgroundColor = isDark ? DARK_TOKENS.cardBg : LIGHT_TOKENS.cardBg;
   }
 
   return {
-    backgroundColor: isDark ? DARK_TOKENS.cardBg : LIGHT_TOKENS.cardBg,
-    borderColor: isDark ? DARK_TOKENS.cardBorder : LIGHT_TOKENS.cardBorder,
-    borderWidth,
-    borderRadius: baseRadius,
+    backgroundColor,
+    borderRadius,
     overflow: 'hidden',
+    borderTopWidth: 1.5,
+    borderTopColor: isDark
+      ? 'rgba(255, 255, 255, 0.45)'
+      : 'rgba(255, 255, 255, 0.85)',
+    borderBottomWidth: 1,
+    borderBottomColor: isDark
+      ? 'rgba(255, 255, 255, 0.08)'
+      : 'rgba(0, 0, 0, 0.06)',
+    borderLeftWidth: hairlineWidth,
+    borderRightWidth: hairlineWidth,
+    borderLeftColor: isDark
+      ? 'rgba(255, 255, 255, 0.18)'
+      : 'rgba(255, 255, 255, 0.45)',
+    borderRightColor: isDark
+      ? 'rgba(255, 255, 255, 0.18)'
+      : 'rgba(255, 255, 255, 0.45)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: isDark ? 0.35 : 0.08,
+    shadowRadius: 14,
+    elevation: 4,
   };
 }
 
@@ -81,7 +97,7 @@ export function resolveGlassConfig(
   tint?: 'light' | 'dark' | 'default'
 ): { intensity: number; tint: 'light' | 'dark' | 'default' } {
   return {
-    intensity: intensity !== undefined ? intensity : 50,
+    intensity: intensity !== undefined ? intensity : 70,
     tint: tint !== undefined ? tint : tokensBlurTint,
   };
 }
@@ -89,12 +105,13 @@ export function resolveGlassConfig(
 export function GlassCard({
   children,
   style,
-  intensity = 50,
+  intensity = 70,
   tint,
   variant = 'default',
   padded = false,
   onPress,
   testID,
+  glowColor,
 }: GlassCardProps) {
   const { isDark, tokens } = useAppTheme();
   const cardStyles = getGlassCardStyles(isDark, variant);
@@ -104,6 +121,15 @@ export function GlassCard({
     tint
   );
 
+  const glowStyle: ViewStyle | undefined = glowColor
+    ? {
+        shadowColor: glowColor,
+        shadowOpacity: isDark ? 0.45 : 0.25,
+        shadowRadius: 18,
+        elevation: 6,
+      }
+    : undefined;
+
   const isWeb = Platform.OS === 'web';
   const webStyle: ViewStyle | undefined = isWeb
     ? ({
@@ -112,16 +138,33 @@ export function GlassCard({
       } as unknown as ViewStyle)
     : undefined;
 
+  const specularLine = (
+    <View
+      pointerEvents="none"
+      testID="glass-card-specular-line"
+      style={[
+        styles.topSpecularLine,
+        {
+          backgroundColor: isDark
+            ? 'rgba(255, 255, 255, 0.22)'
+            : 'rgba(255, 255, 255, 0.55)',
+        },
+      ]}
+    />
+  );
+
   const content = isWeb ? (
     <View
       testID={onPress ? undefined : testID}
       style={[
         cardStyles,
+        glowStyle,
         padded && styles.padded,
         webStyle,
         style,
       ]}
     >
+      {specularLine}
       {children}
     </View>
   ) : (
@@ -131,10 +174,12 @@ export function GlassCard({
       tint={resolvedTint}
       style={[
         cardStyles,
+        glowStyle,
         padded && styles.padded,
         style,
       ]}
     >
+      {specularLine}
       {children}
     </BlurView>
   );
@@ -171,5 +216,14 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  topSpecularLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    marginHorizontal: 16,
+    opacity: 0.9,
   },
 });
