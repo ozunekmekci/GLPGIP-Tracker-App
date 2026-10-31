@@ -19,7 +19,7 @@
 - Create: `src/context/theme-context.test.ts`
 - Modify: `src/app/_layout.tsx`
 
-- [ ] **Step 1: Domain tiplerine `themePreference` ekle**
+- [x] **Step 1: Domain tiplerine `themePreference` ekle**
 In `src/types/index.ts`:
 ```typescript
 export type ThemePreference = 'system' | 'light' | 'dark';
@@ -27,21 +27,21 @@ export type ThemePreference = 'system' | 'light' | 'dark';
 // themePreference?: ThemePreference;
 ```
 
-- [ ] **Step 2: SQLite şeması ve `user_settings` fonksiyonlarını güncelle**
+- [x] **Step 2: SQLite şeması ve `user_settings` fonksiyonlarını güncelle**
 In `src/services/db.ts`:
 Add `theme_preference` column to `user_settings` table and map to `themePreference`.
 
-- [ ] **Step 3: `ThemeContext` ve renk tokenlarını yaz**
+- [x] **Step 3: `ThemeContext` ve renk tokenlarını yaz**
 In `src/context/theme-context.tsx`:
 Implement `ThemeProvider`, `useAppTheme()` hook with semantic Apple colors (`bg`, `surface`, `cardBg`, `cardBorder`, `textPrimary`, `textSecondary`, `accent`, `tint`, `isDark`, `setThemePreference`).
 
-- [ ] **Step 4: `src/app/_layout.tsx` dosyasını `ThemeProvider` ile sar**
+- [x] **Step 4: `src/app/_layout.tsx` dosyasını `ThemeProvider` ile sar**
 
-- [ ] **Step 5: Testleri çalıştır ve tip kontrolü yap**
+- [x] **Step 5: Testleri çalıştır ve tip kontrolü yap**
 Run: `npm test && npx tsc --noEmit && npx eslint .`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 ```bash
 git add src/types/index.ts src/services/db.ts src/context/ src/app/_layout.tsx
 git commit -m "feat: implement dynamic theme context and sqlite persistence"
@@ -55,12 +55,12 @@ git commit -m "feat: implement dynamic theme context and sqlite persistence"
 - Create: `src/components/glass-card.tsx`
 - Create: `src/components/glass-card.test.ts`
 
-- [ ] **Step 1: `GlassCard` bileşenini `expo-blur` ve web fallback ile geliştir**
-- [ ] **Step 2: Unit testlerini yaz**
-- [ ] **Step 3: Tip ve lint kontrollerini çalıştır**
+- [x] **Step 1: `GlassCard` bileşenini `expo-blur` ve web fallback ile geliştir**
+- [x] **Step 2: Unit testlerini yaz**
+- [x] **Step 3: Tip ve lint kontrollerini çalıştır**
 Run: `npm test && npx tsc --noEmit && npx eslint .`
 Expected: PASS
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 ```bash
 git add src/components/glass-card.tsx src/components/glass-card.test.ts
 git commit -m "feat: add reusable Liquid Glass card component with blur effect"
@@ -73,10 +73,10 @@ git commit -m "feat: add reusable Liquid Glass card component with blur effect"
 **Files:**
 - Modify: `src/app/(tabs)/_layout.tsx`
 
-- [ ] **Step 1: TabBar'ı yarı saydam yüzen BlurView çubuğuna dönüştür**
+- [x] **Step 1: TabBar'ı yarı saydam yüzen BlurView çubuğuna dönüştür**
 `tabBarStyle: { position: 'absolute', backgroundColor: 'transparent', borderTopWidth: 0, elevation: 0 }`
-- [ ] **Step 2: Tüm sekmelerin alt dolgusunu (paddingBottom: 100) ayarla**
-- [ ] **Step 3: Tip ve lint kontrollerini çalıştır**
+- [x] **Step 2: Tüm sekmelerin alt dolgusunu (paddingBottom: 100) ayarla**
+- [x] **Step 3: Tip ve lint kontrollerini çalıştır**
 Run: `npm test && npx tsc --noEmit && npx eslint .`
 Expected: PASS
 - [ ] **Step 4: Commit**

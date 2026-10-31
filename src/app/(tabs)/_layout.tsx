@@ -1,7 +1,9 @@
 import React from 'react';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
+import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { useAppTheme, ThemeTokens } from '../../context/theme-context';
 
 function TodayIcon({ color, size }: { color?: string; size: number }) {
   const strokeColor = color || '#007AFF';
@@ -107,49 +109,145 @@ function SettingsIcon({ color, size }: { color?: string; size: number }) {
   );
 }
 
-export default function TabLayout() {
-  const isDark = useColorScheme() === 'dark';
-
-  const theme = {
-    tabBarBg: isDark ? '#1C1C1E' : '#FFFFFF',
-    border: isDark ? '#2C2C2E' : '#E5E5EA',
-    activeTint: isDark ? '#0A84FF' : '#007AFF',
-    inactiveTint: '#8E8E93',
-    headerBg: isDark ? '#000000' : '#F2F2F7',
-    headerText: isDark ? '#FFFFFF' : '#000000',
+export interface TabScreenOptionsResult {
+  headerShown: boolean;
+  headerStyle: { backgroundColor: string };
+  headerTitleStyle: { fontWeight: '700'; fontSize: number; color: string };
+  headerShadowVisible: boolean;
+  tabBarActiveTintColor: string;
+  tabBarInactiveTintColor: string;
+  tabBarStyle: {
+    position: 'absolute';
+    bottom: number;
+    left: number;
+    right: number;
+    backgroundColor: string;
+    borderTopWidth: number;
+    elevation: number;
+    paddingTop: number;
+    paddingBottom: number;
+    height: number;
   };
+  tabBarLabelStyle: {
+    fontSize: number;
+    fontWeight: '500';
+    marginTop: number;
+  };
+  tabBarItemStyle: {
+    minHeight: number;
+  };
+}
+
+export function getTabScreenOptions(
+  tokens: ThemeTokens,
+  platformOS: string = Platform.OS
+): TabScreenOptionsResult {
+  return {
+    headerShown: true,
+    headerStyle: {
+      backgroundColor: tokens.bg,
+    },
+    headerTitleStyle: {
+      fontWeight: '700',
+      fontSize: 18,
+      color: tokens.textPrimary,
+    },
+    headerShadowVisible: false,
+    tabBarActiveTintColor: tokens.accent,
+    tabBarInactiveTintColor: tokens.textSecondary,
+    tabBarStyle: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'transparent',
+      borderTopWidth: 0,
+      elevation: 0,
+      paddingTop: 6,
+      paddingBottom: platformOS === 'ios' ? 24 : 8,
+      height: platformOS === 'ios' ? 84 : 64,
+    },
+    tabBarLabelStyle: {
+      fontSize: 11,
+      fontWeight: '500',
+      marginTop: 2,
+    },
+    tabBarItemStyle: {
+      minHeight: 44,
+    },
+  };
+}
+
+export interface TabBarBackgroundProps {
+  isWeb: boolean;
+  backgroundColor?: string;
+  borderTopColor: string;
+  borderTopWidth: number;
+  backdropFilter?: string;
+  intensity?: number;
+  tint?: 'light' | 'dark';
+}
+
+export function getTabBarBackgroundProps(
+  tokens: ThemeTokens,
+  isWeb: boolean = Platform.OS === 'web'
+): TabBarBackgroundProps {
+  if (isWeb) {
+    return {
+      isWeb: true,
+      backgroundColor: tokens.tabBarBg,
+      borderTopColor: tokens.cardBorder,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      backdropFilter: 'blur(20px)',
+    };
+  }
+
+  return {
+    isWeb: false,
+    intensity: 85,
+    tint: tokens.blurTint,
+    borderTopColor: tokens.cardBorder,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  };
+}
+
+export default function TabLayout() {
+  const { tokens } = useAppTheme();
+  const screenOptions = getTabScreenOptions(tokens);
 
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: theme.headerBg,
-        },
-        headerTitleStyle: {
-          fontWeight: '700',
-          fontSize: 18,
-          color: theme.headerText,
-        },
-        headerShadowVisible: false,
-        tabBarActiveTintColor: theme.activeTint,
-        tabBarInactiveTintColor: theme.inactiveTint,
-        tabBarStyle: {
-          backgroundColor: theme.tabBarBg,
-          borderTopColor: theme.border,
-          borderTopWidth: 1,
-          paddingTop: 6,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
-          height: Platform.OS === 'ios' ? 84 : 64,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 2,
-        },
-        tabBarItemStyle: {
-          minHeight: 44,
-        },
+        ...screenOptions,
+        tabBarBackground: () =>
+          Platform.OS === 'web' ? (
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  backgroundColor: tokens.tabBarBg,
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: tokens.cardBorder,
+                  ...({
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                  } as unknown as object),
+                },
+              ]}
+            />
+          ) : (
+            <BlurView
+              intensity={85}
+              tint={tokens.blurTint}
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: tokens.cardBorder,
+                },
+              ]}
+            />
+          ),
       }}>
       <Tabs.Screen
         name="index"
