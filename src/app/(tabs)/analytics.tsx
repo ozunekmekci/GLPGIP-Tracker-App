@@ -22,8 +22,52 @@ import {
   calculateSymptomStats,
   calculateWeightMetrics,
 } from '../../services/analytics-helpers';
-import { useAppTheme } from '../../context/theme-context';
+import { useAppTheme, ThemeTokens } from '../../context/theme-context';
 import { GlassCard } from '../../components/glass-card';
+import { AmbientMesh } from '../../components/ambient-mesh';
+
+export interface SymptomSeverityBadge {
+  label: string;
+  bgColor: string;
+  textColor: string;
+}
+
+export function getSymptomSeverityBadge(
+  count: number,
+  averageSeverity: number,
+  isDark: boolean,
+  tokens: ThemeTokens
+): SymptomSeverityBadge {
+  if (count === 0) {
+    return {
+      label: 'Kayıt yok',
+      bgColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+      textColor: tokens.textSecondary,
+    };
+  }
+
+  if (averageSeverity <= 2.0) {
+    return {
+      label: `Hafif (${averageSeverity}/5)`,
+      bgColor: isDark ? 'rgba(52, 199, 89, 0.20)' : 'rgba(52, 199, 89, 0.12)',
+      textColor: tokens.accentGreen,
+    };
+  }
+
+  if (averageSeverity <= 3.5) {
+    return {
+      label: `Orta (${averageSeverity}/5)`,
+      bgColor: isDark ? 'rgba(255, 149, 0, 0.20)' : 'rgba(255, 149, 0, 0.12)',
+      textColor: tokens.accentOrange,
+    };
+  }
+
+  return {
+    label: `Şiddetli (${averageSeverity}/5)`,
+    bgColor: isDark ? 'rgba(255, 59, 48, 0.20)' : 'rgba(255, 59, 48, 0.12)',
+    textColor: tokens.accentRed,
+  };
+}
 
 function formatDate(isoStr: string): string {
   try {
@@ -104,6 +148,7 @@ export default function AnalyticsScreen() {
   if (isLoading) {
     return (
       <View style={[styles.center, { backgroundColor: tokens.bg }]}>
+        <AmbientMesh />
         <ActivityIndicator size="large" color={tokens.accent} />
         <Text style={[styles.loadingText, { color: tokens.textSecondary }]}>
           Analiz verileri hesaplanıyor...
@@ -113,239 +158,324 @@ export default function AnalyticsScreen() {
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: tokens.bg }]}
-      contentContainerStyle={styles.content}>
-      {/* Top Action CTA Header */}
-      <View style={styles.topRow}>
-        <Text style={[styles.screenHeadline, { color: tokens.textPrimary }]}>
-          Kilo & Yan Etki Analizi
-        </Text>
-        <View style={styles.actionButtonsGroup}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Yeni kilo kaydet"
-            onPress={() => router.push('/modal-log-weight')}
-            style={[styles.smallActionButton, { backgroundColor: tokens.accent }]}>
-            <Text style={styles.smallActionText}>+ Kilo</Text>
-          </Pressable>
+    <View style={[styles.rootContainer, { backgroundColor: tokens.bg }]}>
+      <AmbientMesh />
 
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Yeni yan etki kaydet"
-            onPress={() => router.push('/modal-log-symptom')}
-            style={[
-              styles.smallActionButton,
-              {
-                backgroundColor: tokens.cardBg,
-                borderColor: tokens.cardBorder,
-                borderWidth: 1,
-              },
-            ]}>
-            <Text style={[styles.smallActionText, { color: tokens.textPrimary }]}>
-              + Yan Etki
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}>
+        {/* Top Action CTA Header */}
+        <View style={styles.topRow}>
+          <Text style={[styles.screenHeadline, { color: tokens.textPrimary }]}>
+            Kilo & Yan Etki Analizi
+          </Text>
+          <View style={styles.actionButtonsGroup}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Yeni kilo kaydet"
+              onPress={() => router.push('/modal-log-weight')}
+              style={[styles.smallActionButton, { backgroundColor: tokens.accent }]}>
+              <Text style={styles.smallActionText}>+ Kilo</Text>
+            </Pressable>
 
-      {/* Metrics Cards Grid */}
-      <View style={styles.metricsGrid}>
-        <GlassCard style={styles.metricCard}>
-          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
-            Toplam Değişim
-          </Text>
-          <Text
-            style={[
-              styles.metricCardValue,
-              {
-                color:
-                  weightMetrics.totalChangeKg === null
-                    ? tokens.textPrimary
-                    : weightMetrics.totalChangeKg <= 0
-                    ? tokens.accentGreen
-                    : tokens.accentOrange,
-              },
-            ]}>
-            {weightMetrics.totalChangeKg !== null
-              ? `${weightMetrics.totalChangeKg > 0 ? '+' : ''}${weightMetrics.totalChangeKg} kg`
-              : '—'}
-          </Text>
-        </GlassCard>
-
-        <GlassCard style={styles.metricCard}>
-          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
-            Haftalık Hız
-          </Text>
-          <Text style={[styles.metricCardValue, { color: tokens.textPrimary }]}>
-            {weightMetrics.weeklyRateKg !== null
-              ? `${weightMetrics.weeklyRateKg > 0 ? '+' : ''}${weightMetrics.weeklyRateKg} kg/hf`
-              : '—'}
-          </Text>
-        </GlassCard>
-
-        <GlassCard style={styles.metricCard}>
-          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
-            Hedefe Kalan
-          </Text>
-          <Text
-            style={[
-              styles.metricCardValue,
-              {
-                color: weightMetrics.isTargetReached
-                  ? tokens.accentGreen
-                  : tokens.accent,
-              },
-            ]}>
-            {weightMetrics.isTargetReached
-              ? 'Ulaşıldı!'
-              : weightMetrics.remainingToTargetKg !== null
-              ? `${weightMetrics.remainingToTargetKg} kg`
-              : 'Hedef yok'}
-          </Text>
-        </GlassCard>
-      </View>
-
-      {/* Weight Chart Container */}
-      <GlassCard style={styles.card}>
-        <WeightChart
-          weightLogs={weightLogs}
-          targetWeightKg={settings?.targetWeightKg}
-          height={220}
-        />
-      </GlassCard>
-
-      {/* Adverse Side Effects Breakdown (Last 30 Days) */}
-      <GlassCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
-            Yan Etki Dağılımı (Son 30 Gün)
-          </Text>
-          <Text style={[styles.subText, { color: tokens.textSecondary }]}>
-            {symptomStats.totalCount > 0
-              ? `${symptomStats.totalCount} kayıt • Ort. Şiddet: ${symptomStats.averageSeverity} / 5`
-              : 'Son 30 günde kaydedilen yan etki yok'}
-          </Text>
-        </View>
-
-        <View style={styles.symptomsList}>
-          {symptomStats.breakdown.map((item) => (
-            <View
-              key={item.symptomType}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Yeni yan etki kaydet"
+              onPress={() => router.push('/modal-log-symptom')}
               style={[
-                styles.symptomRow,
+                styles.smallActionButton,
                 {
-                  backgroundColor: isDark
-                    ? 'rgba(255, 255, 255, 0.05)'
-                    : 'rgba(0, 0, 0, 0.03)',
+                  backgroundColor: tokens.cardBg,
                   borderColor: tokens.cardBorder,
+                  borderWidth: 1,
                 },
               ]}>
-              <View style={styles.symptomLeft}>
-                <Text style={[styles.symptomName, { color: tokens.textPrimary }]}>
-                  {item.label}
-                </Text>
-                {item.count > 0 ? (
-                  <Text style={[styles.symptomSeverityText, { color: tokens.textSecondary }]}>
-                    Ortalama Şiddet: {item.averageSeverity} / 5
-                  </Text>
-                ) : null}
-              </View>
+              <Text style={[styles.smallActionText, { color: tokens.textPrimary }]}>
+                + Yan Etki
+              </Text>
+            </Pressable>
+          </View>
+        </View>
 
-              <View
-                style={[
-                  styles.symptomBadge,
-                  {
-                    backgroundColor:
-                      item.count > 0
-                        ? isDark
-                          ? 'rgba(0, 122, 255, 0.18)'
-                          : 'rgba(0, 122, 255, 0.10)'
-                        : isDark
-                        ? 'rgba(255, 255, 255, 0.08)'
-                        : 'rgba(0, 0, 0, 0.05)',
-                  },
-                ]}>
-                <Text
+        {/* 1. KPI Summary Cards Row with Specular Shine */}
+        <View style={styles.metricsGrid}>
+          <GlassCard variant="default" style={styles.metricCard}>
+            <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
+              Toplam Değişim
+            </Text>
+            <Text
+              style={[
+                styles.metricCardValue,
+                {
+                  color:
+                    weightMetrics.totalChangeKg === null
+                      ? tokens.textPrimary
+                      : weightMetrics.totalChangeKg <= 0
+                      ? tokens.accentGreen
+                      : tokens.accentOrange,
+                },
+              ]}>
+              {weightMetrics.totalChangeKg !== null
+                ? `${weightMetrics.totalChangeKg > 0 ? '+' : ''}${weightMetrics.totalChangeKg} kg`
+                : '—'}
+            </Text>
+            <Text style={[styles.metricCardSub, { color: tokens.textSecondary }]}>
+              {weightMetrics.startWeight !== null
+                ? `Başlangıç: ${weightMetrics.startWeight} kg`
+                : 'Kayıt bekleniyor'}
+            </Text>
+          </GlassCard>
+
+          <GlassCard variant="default" style={styles.metricCard}>
+            <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
+              Haftalık Hız
+            </Text>
+            <Text style={[styles.metricCardValue, { color: tokens.textPrimary }]}>
+              {weightMetrics.weeklyRateKg !== null
+                ? `${weightMetrics.weeklyRateKg > 0 ? '+' : ''}${weightMetrics.weeklyRateKg} kg/hf`
+                : '—'}
+            </Text>
+            <Text style={[styles.metricCardSub, { color: tokens.textSecondary }]}>
+              {weightMetrics.weeklyRateKg !== null && weightMetrics.weeklyRateKg <= 0
+                ? 'İdeal seyir 📉'
+                : 'Haftalık ortalama'}
+            </Text>
+          </GlassCard>
+
+          <GlassCard variant="default" style={styles.metricCard}>
+            <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
+              Hedefe Kalan
+            </Text>
+            <Text
+              style={[
+                styles.metricCardValue,
+                {
+                  color: weightMetrics.isTargetReached
+                    ? tokens.accentGreen
+                    : tokens.accent,
+                },
+              ]}>
+              {weightMetrics.isTargetReached
+                ? 'Ulaşıldı!'
+                : weightMetrics.remainingToTargetKg !== null
+                ? `${weightMetrics.remainingToTargetKg} kg`
+                : 'Hedef yok'}
+            </Text>
+            <Text style={[styles.metricCardSub, { color: tokens.textSecondary }]}>
+              {settings?.targetWeightKg
+                ? `Hedef: ${settings.targetWeightKg} kg`
+                : 'Hedef belirleyin'}
+            </Text>
+          </GlassCard>
+        </View>
+
+        {/* 2. Liquid Glass Weight Progress Chart */}
+        <GlassCard
+          variant="prominent"
+          glowColor={tokens.accent}
+          style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
+              Kilo İlerleme Eğrisi
+            </Text>
+            <Text style={[styles.subText, { color: tokens.textSecondary }]}>
+              {weightMetrics.currentWeight !== null
+                ? `Güncel: ${weightMetrics.currentWeight} kg${settings?.targetWeightKg ? ` • Hedef: ${settings.targetWeightKg} kg` : ''}`
+                : 'Kilo trendinizi görmek için düzenli ölçüm girin'}
+            </Text>
+          </View>
+
+          <WeightChart
+            weightLogs={weightLogs}
+            targetWeightKg={settings?.targetWeightKg}
+            height={220}
+          />
+        </GlassCard>
+
+        {/* 3. Adverse Side Effects Breakdown (Last 30 Days) */}
+        <GlassCard variant="default" style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
+              Yan Etki Dağılımı (Son 30 Gün)
+            </Text>
+            <Text style={[styles.subText, { color: tokens.textSecondary }]}>
+              {symptomStats.totalCount > 0
+                ? `${symptomStats.totalCount} kayıt • Genel Ort. Şiddet: ${symptomStats.averageSeverity} / 5`
+                : 'Son 30 günde kaydedilen yan etki yok'}
+            </Text>
+          </View>
+
+          <View style={styles.symptomsList}>
+            {symptomStats.breakdown.map((item) => {
+              const severityBadge = getSymptomSeverityBadge(
+                item.count,
+                item.averageSeverity,
+                isDark,
+                tokens
+              );
+
+              return (
+                <View
+                  key={item.symptomType}
                   style={[
-                    styles.symptomBadgeText,
+                    styles.symptomRow,
                     {
-                      color: item.count > 0 ? tokens.accent : tokens.textSecondary,
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'rgba(0, 0, 0, 0.03)',
+                      borderColor: tokens.cardBorder,
                     },
                   ]}>
-                  {item.count} kez
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </GlassCard>
-
-      {/* Weight History Log List */}
-      <GlassCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
-            Kilo Kayıtları Geçmişi ({weightLogs.length})
-          </Text>
-        </View>
-
-        {weightLogs.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyTitle, { color: tokens.textPrimary }]}>
-              Henüz kilo kaydı bulunmuyor
-            </Text>
-            <Text style={[styles.emptySubtitle, { color: tokens.textSecondary }]}>
-              İlerlemenizi takip etmek için ilk kilo ölçümünüzü girin.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.historyList}>
-            {weightLogs.map((log, index) => (
-              <View key={log.id}>
-                {index > 0 && (
-                  <View
-                    style={[styles.listDivider, { backgroundColor: tokens.cardBorder }]}
-                  />
-                )}
-                <View style={styles.historyItemRow}>
-                  <View style={styles.historyMainContent}>
-                    <Text style={[styles.historyWeight, { color: tokens.textPrimary }]}>
-                      {log.weightKg.toFixed(1)} kg
+                  <View style={styles.symptomLeft}>
+                    <Text style={[styles.symptomName, { color: tokens.textPrimary }]}>
+                      {item.label}
                     </Text>
-                    <Text style={[styles.historyDate, { color: tokens.textSecondary }]}>
-                      {formatDate(log.loggedAt)}
-                    </Text>
+                    {item.count > 0 ? (
+                      <Text
+                        style={[
+                          styles.symptomSeverityText,
+                          { color: tokens.textSecondary },
+                        ]}>
+                        Ortalama Şiddet: {item.averageSeverity} / 5
+                      </Text>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.symptomSeverityText,
+                          { color: tokens.textSecondary },
+                        ]}>
+                        Belirti bildirilmedi
+                      </Text>
+                    )}
                   </View>
 
-                  {/* Soft Delete Button */}
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Bu kilo kaydını sil"
-                    hitSlop={12}
-                    onPress={() => handleDeleteWeight(log)}
-                    style={[
-                      styles.deleteButton,
-                      {
-                        backgroundColor: isDark
-                          ? 'rgba(255, 59, 48, 0.18)'
-                          : 'rgba(255, 59, 48, 0.12)',
-                      },
-                    ]}>
-                    <Text style={[styles.deleteButtonText, { color: tokens.accentRed }]}>
-                      Sil
-                    </Text>
-                  </Pressable>
+                  <View style={styles.symptomBadgesGroup}>
+                    {/* Severity Badge */}
+                    <View
+                      style={[
+                        styles.severityBadge,
+                        { backgroundColor: severityBadge.bgColor },
+                      ]}>
+                      <Text
+                        style={[
+                          styles.severityBadgeText,
+                          { color: severityBadge.textColor },
+                        ]}>
+                        {severityBadge.label}
+                      </Text>
+                    </View>
+
+                    {/* Frequency Badge */}
+                    <View
+                      style={[
+                        styles.symptomBadge,
+                        {
+                          backgroundColor:
+                            item.count > 0
+                              ? isDark
+                                ? 'rgba(0, 122, 255, 0.18)'
+                                : 'rgba(0, 122, 255, 0.10)'
+                              : isDark
+                              ? 'rgba(255, 255, 255, 0.08)'
+                              : 'rgba(0, 0, 0, 0.05)',
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          styles.symptomBadgeText,
+                          {
+                            color: item.count > 0 ? tokens.accent : tokens.textSecondary,
+                          },
+                        ]}>
+                        {item.count} kez
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
-        )}
-      </GlassCard>
-    </ScrollView>
+        </GlassCard>
+
+        {/* 4. Weight History Log List */}
+        <GlassCard variant="default" style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
+              Kilo Kayıtları Geçmişi ({weightLogs.length})
+            </Text>
+          </View>
+
+          {weightLogs.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={[styles.emptyTitle, { color: tokens.textPrimary }]}>
+                Henüz kilo kaydı bulunmuyor
+              </Text>
+              <Text style={[styles.emptySubtitle, { color: tokens.textSecondary }]}>
+                İlerlemenizi takip etmek için ilk kilo ölçümünüzü girin.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.historyList}>
+              {weightLogs.map((log, index) => (
+                <View key={log.id}>
+                  {index > 0 && (
+                    <View
+                      style={[
+                        styles.listDivider,
+                        { backgroundColor: tokens.cardBorder },
+                      ]}
+                    />
+                  )}
+                  <View style={styles.historyItemRow}>
+                    <View style={styles.historyMainContent}>
+                      <Text
+                        style={[styles.historyWeight, { color: tokens.textPrimary }]}>
+                        {log.weightKg.toFixed(1)} kg
+                      </Text>
+                      <Text
+                        style={[styles.historyDate, { color: tokens.textSecondary }]}>
+                        {formatDate(log.loggedAt)}
+                      </Text>
+                    </View>
+
+                    {/* Soft Delete Button */}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Bu kilo kaydını sil"
+                      hitSlop={12}
+                      onPress={() => handleDeleteWeight(log)}
+                      style={[
+                        styles.deleteButton,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(255, 59, 48, 0.18)'
+                            : 'rgba(255, 59, 48, 0.12)',
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          styles.deleteButtonText,
+                          { color: tokens.accentRed },
+                        ]}>
+                        Sil
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </GlassCard>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -393,22 +523,27 @@ const styles = StyleSheet.create({
   },
   metricsGrid: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   metricCard: {
     flex: 1,
-    padding: 14,
-    gap: 6,
+    padding: 12,
+    gap: 4,
   },
   metricCardLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
   },
   metricCardValue: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
     letterSpacing: -0.3,
+  },
+  metricCardSub: {
+    fontSize: 10,
+    fontVariant: ['tabular-nums'],
+    marginTop: 2,
   },
   card: {
     padding: 18,
@@ -431,7 +566,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   symptomRow: {
-    minHeight: 44,
+    minHeight: 52,
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 14,
@@ -453,13 +588,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontVariant: ['tabular-nums'],
   },
-  symptomBadge: {
-    paddingHorizontal: 10,
+  symptomBadgesGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  severityBadge: {
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 6,
+  },
+  severityBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
+  symptomBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   symptomBadgeText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
   },

@@ -12,7 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { InjectionSite, Medication } from '../types';
 import {
   addInjection,
@@ -63,6 +63,9 @@ export default function ModalLogInjection() {
   const [selectedSite, setSelectedSite] = useState<InjectionSite>('abdomen_left');
   const [notes, setNotes] = useState('');
 
+  const searchParams = useLocalSearchParams<{ site?: string }>();
+  const initialSiteParam = typeof searchParams.site === 'string' ? searchParams.site : null;
+
   // Initial Data Fetch
   useEffect(() => {
     let isMounted = true;
@@ -102,7 +105,11 @@ export default function ModalLogInjection() {
         // Determine next recommended injection site
         const nextSite = getRecommendedNextSite(injections);
         setRecommendedSite(nextSite);
-        setSelectedSite(nextSite);
+        const siteToSelect =
+          initialSiteParam && initialSiteParam in SITE_DISPLAY_NAMES
+            ? (initialSiteParam as InjectionSite)
+            : nextSite;
+        setSelectedSite(siteToSelect);
       } catch (err) {
         if (!isMounted) return;
         setErrorMessage(
@@ -120,7 +127,7 @@ export default function ModalLogInjection() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialSiteParam]);
 
   // Handle Dose Chip Press
   const handleSelectPresetDose = (dose: number) => {
