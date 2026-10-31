@@ -1,4 +1,4 @@
-import { MedicationType, InjectionSite } from './index';
+import { MedicationType, InjectionSite, ThemePreference } from './index';
 
 describe('Domain Types', () => {
   it('defines valid medication types', () => {
@@ -16,5 +16,10 @@ describe('Domain Types', () => {
       'arm_right',
     ];
     expect(sites).toHaveLength(6);
+  });
+
+  it('defines valid theme preferences', () => {
+    const preferences: ThemePreference[] = ['system', 'light', 'dark'];
+    expect(preferences).toHaveLength(3);
   });
 });

@@ -64,6 +64,8 @@ export interface NutritionLog {
   updatedAt: string;
 }
 
+export type ThemePreference = 'system' | 'light' | 'dark';
+
 export interface UserSettings {
   id: string;
   activeMedicationId?: string;
@@ -72,5 +74,6 @@ export interface UserSettings {
   targetWeightKg?: number;
   dailyProteinTargetG: number;
   dailyWaterTargetMl: number;
+  themePreference?: ThemePreference;
   updatedAt: string;
 }

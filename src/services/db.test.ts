@@ -461,15 +461,22 @@ describe('SQLite Database & Repository Layer (db.ts)', () => {
   });
 
   describe('User Settings CRUD', () => {
+    it('seeds and retrieves default themePreference as system', async () => {
+      const initial = await getUserSettings();
+      expect(initial.themePreference).toBe('system');
+    });
+
     it('updates user settings partially and preserves untouched fields', async () => {
       const initial = await getUserSettings();
       expect(initial.dailyProteinTargetG).toBe(100);
       expect(initial.dailyWaterTargetMl).toBe(2500);
+      expect(initial.themePreference).toBe('system');
 
       const updated = await updateUserSettings({
         targetWeightKg: 75.0,
         currentDoseMg: 0.5,
         preferredInjectionDay: 1, // Monday
+        themePreference: 'dark',
       });
 
       expect(updated.targetWeightKg).toBe(75.0);
@@ -477,10 +484,26 @@ describe('SQLite Database & Repository Layer (db.ts)', () => {
       expect(updated.preferredInjectionDay).toBe(1);
       expect(updated.dailyProteinTargetG).toBe(100);
       expect(updated.dailyWaterTargetMl).toBe(2500);
+      expect(updated.themePreference).toBe('dark');
 
       const refetched = await getUserSettings();
       expect(refetched.targetWeightKg).toBe(75.0);
       expect(refetched.currentDoseMg).toBe(0.5);
+      expect(refetched.themePreference).toBe('dark');
+    });
+
+    it('updates theme preference to light and retains it', async () => {
+      await updateUserSettings({ themePreference: 'light' });
+      const refetched = await getUserSettings();
+      expect(refetched.themePreference).toBe('light');
+    });
+
+    it('runs alter table migration for theme_preference in initDatabase', async () => {
+      await initDatabase();
+      const alterCall = mockState.executedSql.find((item) =>
+        item.sql.includes('ALTER TABLE user_settings ADD COLUMN theme_preference')
+      );
+      expect(alterCall).toBeDefined();
     });
   });
 });

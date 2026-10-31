@@ -6,6 +6,7 @@ import {
   SymptomLog,
   NutritionLog,
   UserSettings,
+  ThemePreference,
 } from '../types';
 
 let dbInstance: SQLite.SQLiteDatabase | null = null;
@@ -104,10 +105,18 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
         target_weight_kg REAL,
         daily_protein_target_g REAL NOT NULL DEFAULT 100,
         daily_water_target_ml REAL NOT NULL DEFAULT 2500,
+        theme_preference TEXT DEFAULT 'system',
         updated_at TEXT NOT NULL,
         FOREIGN KEY (active_medication_id) REFERENCES medications(id)
       );
     `);
+
+    // Backwards compatibility migration for existing databases
+    try {
+      await db.execAsync("ALTER TABLE user_settings ADD COLUMN theme_preference TEXT DEFAULT 'system';");
+    } catch {
+      // column may already exist
+    }
 
     // 3. Seed default medications if empty
     const countMedRow = await db.getFirstAsync<{ count: number }>(
@@ -152,10 +161,11 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
     if (!countSettingsRow || countSettingsRow.count === 0) {
       const now = new Date().toISOString();
       await db.runAsync(
-        'INSERT INTO user_settings (id, daily_protein_target_g, daily_water_target_ml, updated_at) VALUES (?, ?, ?, ?);',
+        'INSERT INTO user_settings (id, daily_protein_target_g, daily_water_target_ml, theme_preference, updated_at) VALUES (?, ?, ?, ?, ?);',
         generateUUID(),
         100,
         2500,
+        'system',
         now
       );
     }
@@ -506,6 +516,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     target_weight_kg: number | null;
     daily_protein_target_g: number;
     daily_water_target_ml: number;
+    theme_preference?: string | null;
     updated_at: string;
   }>('SELECT * FROM user_settings LIMIT 1;');
 
@@ -515,14 +526,16 @@ export async function getUserSettings(): Promise<UserSettings> {
       id: generateUUID(),
       dailyProteinTargetG: 100,
       dailyWaterTargetMl: 2500,
+      themePreference: 'system',
       updatedAt: now,
     };
 
     await db.runAsync(
-      'INSERT INTO user_settings (id, daily_protein_target_g, daily_water_target_ml, updated_at) VALUES (?, ?, ?, ?);',
+      'INSERT INTO user_settings (id, daily_protein_target_g, daily_water_target_ml, theme_preference, updated_at) VALUES (?, ?, ?, ?, ?);',
       defaultSettings.id,
       defaultSettings.dailyProteinTargetG,
       defaultSettings.dailyWaterTargetMl,
+      defaultSettings.themePreference ?? 'system',
       defaultSettings.updatedAt
     );
 
@@ -538,6 +551,7 @@ export async function getUserSettings(): Promise<UserSettings> {
     targetWeightKg: row.target_weight_kg != null ? Number(row.target_weight_kg) : undefined,
     dailyProteinTargetG: Number(row.daily_protein_target_g),
     dailyWaterTargetMl: Number(row.daily_water_target_ml),
+    themePreference: (row.theme_preference as ThemePreference) || 'system',
     updatedAt: row.updated_at,
   };
 }
@@ -556,13 +570,14 @@ export async function updateUserSettings(
   };
 
   await db.runAsync(
-    'UPDATE user_settings SET active_medication_id = ?, current_dose_mg = ?, preferred_injection_day = ?, target_weight_kg = ?, daily_protein_target_g = ?, daily_water_target_ml = ?, updated_at = ? WHERE id = ?;',
+    'UPDATE user_settings SET active_medication_id = ?, current_dose_mg = ?, preferred_injection_day = ?, target_weight_kg = ?, daily_protein_target_g = ?, daily_water_target_ml = ?, theme_preference = ?, updated_at = ? WHERE id = ?;',
     merged.activeMedicationId ?? null,
     merged.currentDoseMg ?? null,
     merged.preferredInjectionDay ?? null,
     merged.targetWeightKg ?? null,
     merged.dailyProteinTargetG,
     merged.dailyWaterTargetMl,
+    merged.themePreference ?? 'system',
     merged.updatedAt,
     merged.id
   );
