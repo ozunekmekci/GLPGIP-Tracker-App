@@ -20,11 +20,11 @@
 - Modify: `src/components/glass-card.tsx`
 - Modify: `src/components/glass-card.test.ts`
 
-- [ ] **Step 1: `AmbientMesh` bileşenini yaz** (ekran arkasında yumuşak mor, zümrüt ve camgöbeği SVG radyal gradyan küreleri).
-- [ ] **Step 2: `GlassCard` bileşenini speküler üst yansıma çizgisi ve iç parlama katmanıyla güncelle**.
-- [ ] **Step 3: Testleri yaz ve çalıştır** (`npm test`).
-- [ ] **Step 4: Tip ve lint kontrollerini çalıştır** (`npx tsc --noEmit && npx eslint .`).
-- [ ] **Step 5: Commit** (`git commit -m "feat: add ambient mesh and specular liquid glass card component"`).
+- [x] **Step 1: `AmbientMesh` bileşenini yaz** (ekran arkasında yumuşak mor, zümrüt ve camgöbeği SVG radyal gradyan küreleri).
+- [x] **Step 2: `GlassCard` bileşenini speküler üst yansıma çizgisi ve iç parlama katmanıyla güncelle**.
+- [x] **Step 3: Testleri yaz ve çalıştır** (`npm test`).
+- [x] **Step 4: Tip ve lint kontrollerini çalıştır** (`npx tsc --noEmit && npx eslint .`).
+- [x] **Step 5: Commit** (`git commit -m "feat: add ambient mesh and specular liquid glass card component"`).
 
 ---
 

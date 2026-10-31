@@ -2,10 +2,10 @@ import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useAppTheme, ThemeTokens } from '../../context/theme-context';
 
-function TodayIcon({ color, size }: { color?: string; size: number }) {
+export function TodayIcon({ color, size }: { color?: string; size: number }) {
   const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -34,7 +34,7 @@ function TodayIcon({ color, size }: { color?: string; size: number }) {
   );
 }
 
-function MedicationIcon({ color, size }: { color?: string; size: number }) {
+export function MedicationIcon({ color, size }: { color?: string; size: number }) {
   const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -63,7 +63,7 @@ function MedicationIcon({ color, size }: { color?: string; size: number }) {
   );
 }
 
-function AnalyticsIcon({ color, size }: { color?: string; size: number }) {
+export function AnalyticsIcon({ color, size }: { color?: string; size: number }) {
   const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -85,7 +85,37 @@ function AnalyticsIcon({ color, size }: { color?: string; size: number }) {
   );
 }
 
-function SettingsIcon({ color, size }: { color?: string; size: number }) {
+export function CalendarIcon({ color, size }: { color?: string; size: number }) {
+  const strokeColor = color || '#007AFF';
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect
+        x="3"
+        y="4"
+        width="18"
+        height="18"
+        rx="2"
+        stroke={strokeColor}
+        strokeWidth="2"
+      />
+      <Path
+        d="M16 2V6M8 2V6M3 10H21"
+        stroke={strokeColor}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle cx="8" cy="14" r="1" fill={strokeColor} />
+      <Circle cx="12" cy="14" r="1" fill={strokeColor} />
+      <Circle cx="16" cy="14" r="1" fill={strokeColor} />
+      <Circle cx="8" cy="18" r="1" fill={strokeColor} />
+      <Circle cx="12" cy="18" r="1" fill={strokeColor} />
+      <Circle cx="16" cy="18" r="1" fill={strokeColor} />
+    </Svg>
+  );
+}
+
+export function SettingsIcon({ color, size }: { color?: string; size: number }) {
   const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -121,20 +151,28 @@ export interface TabScreenOptionsResult {
     bottom: number;
     left: number;
     right: number;
+    height: number;
+    borderRadius: number;
     backgroundColor: string;
     borderTopWidth: number;
+    borderWidth: number;
     elevation: number;
+    shadowColor: string;
+    shadowOffset: { width: number; height: number };
+    shadowOpacity: number;
+    shadowRadius: number;
     paddingTop: number;
     paddingBottom: number;
-    height: number;
   };
   tabBarLabelStyle: {
     fontSize: number;
-    fontWeight: '500';
+    fontWeight: '700';
+    letterSpacing: number;
     marginTop: number;
   };
   tabBarItemStyle: {
     minHeight: number;
+    paddingVertical: number;
   };
 }
 
@@ -157,23 +195,31 @@ export function getTabScreenOptions(
     tabBarInactiveTintColor: tokens.textSecondary,
     tabBarStyle: {
       position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
+      bottom: platformOS === 'ios' ? 24 : 16,
+      left: 16,
+      right: 16,
+      height: 68,
+      borderRadius: 34,
       backgroundColor: 'transparent',
       borderTopWidth: 0,
-      elevation: 0,
-      paddingTop: 6,
-      paddingBottom: platformOS === 'ios' ? 24 : 8,
-      height: platformOS === 'ios' ? 84 : 64,
+      borderWidth: 0,
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: tokens.blurTint === 'dark' ? 0.45 : 0.14,
+      shadowRadius: 20,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
     tabBarLabelStyle: {
-      fontSize: 11,
-      fontWeight: '500',
+      fontSize: 10,
+      fontWeight: '700',
+      letterSpacing: 0.4,
       marginTop: 2,
     },
     tabBarItemStyle: {
       minHeight: 44,
+      paddingVertical: 2,
     },
   };
 }
@@ -181,8 +227,16 @@ export function getTabScreenOptions(
 export interface TabBarBackgroundProps {
   isWeb: boolean;
   backgroundColor?: string;
-  borderTopColor: string;
+  borderRadius: number;
+  overflow: 'hidden';
   borderTopWidth: number;
+  borderTopColor: string;
+  borderBottomWidth: number;
+  borderBottomColor: string;
+  borderLeftWidth: number;
+  borderRightWidth: number;
+  borderLeftColor: string;
+  borderRightColor: string;
   backdropFilter?: string;
   intensity?: number;
   tint?: 'light' | 'dark';
@@ -192,12 +246,31 @@ export function getTabBarBackgroundProps(
   tokens: ThemeTokens,
   isWeb: boolean = Platform.OS === 'web'
 ): TabBarBackgroundProps {
+  const isDark = tokens.blurTint === 'dark';
+  const borderTopColor = isDark
+    ? 'rgba(255, 255, 255, 0.40)'
+    : 'rgba(255, 255, 255, 0.85)';
+  const borderBottomColor = isDark
+    ? 'rgba(255, 255, 255, 0.08)'
+    : 'rgba(0, 0, 0, 0.06)';
+  const borderSidesColor = isDark
+    ? 'rgba(255, 255, 255, 0.18)'
+    : 'rgba(255, 255, 255, 0.45)';
+
   if (isWeb) {
     return {
       isWeb: true,
       backgroundColor: tokens.tabBarBg,
-      borderTopColor: tokens.cardBorder,
-      borderTopWidth: StyleSheet.hairlineWidth,
+      borderRadius: 34,
+      overflow: 'hidden',
+      borderTopWidth: 1.5,
+      borderTopColor,
+      borderBottomWidth: 1,
+      borderBottomColor,
+      borderLeftWidth: StyleSheet.hairlineWidth,
+      borderRightWidth: StyleSheet.hairlineWidth,
+      borderLeftColor: borderSidesColor,
+      borderRightColor: borderSidesColor,
       backdropFilter: 'blur(20px)',
     };
   }
@@ -206,54 +279,73 @@ export function getTabBarBackgroundProps(
     isWeb: false,
     intensity: 85,
     tint: tokens.blurTint,
-    borderTopColor: tokens.cardBorder,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderRadius: 34,
+    overflow: 'hidden',
+    borderTopWidth: 1.5,
+    borderTopColor,
+    borderBottomWidth: 1,
+    borderBottomColor,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: borderSidesColor,
+    borderRightColor: borderSidesColor,
   };
 }
 
 export default function TabLayout() {
   const { tokens } = useAppTheme();
   const screenOptions = getTabScreenOptions(tokens);
+  const bgProps = getTabBarBackgroundProps(tokens, Platform.OS === 'web');
 
   return (
     <Tabs
       screenOptions={{
         ...screenOptions,
-        tabBarBackground: () =>
-          Platform.OS === 'web' ? (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  backgroundColor: tokens.tabBarBg,
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: tokens.cardBorder,
-                  ...({
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                  } as unknown as object),
-                },
-              ]}
-            />
-          ) : (
-            <BlurView
-              intensity={85}
-              tint={tokens.blurTint}
-              style={[
-                StyleSheet.absoluteFill,
-                {
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderTopColor: tokens.cardBorder,
-                },
-              ]}
-            />
-          ),
+        tabBarBackground: () => (
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                borderRadius: bgProps.borderRadius,
+                overflow: bgProps.overflow,
+                borderTopWidth: bgProps.borderTopWidth,
+                borderTopColor: bgProps.borderTopColor,
+                borderBottomWidth: bgProps.borderBottomWidth,
+                borderBottomColor: bgProps.borderBottomColor,
+                borderLeftWidth: bgProps.borderLeftWidth,
+                borderRightWidth: bgProps.borderRightWidth,
+                borderLeftColor: bgProps.borderLeftColor,
+                borderRightColor: bgProps.borderRightColor,
+              },
+            ]}>
+            {Platform.OS === 'web' ? (
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  {
+                    backgroundColor: tokens.tabBarBg,
+                    ...({
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                    } as unknown as object),
+                  },
+                ]}
+              />
+            ) : (
+              <BlurView
+                intensity={bgProps.intensity}
+                tint={bgProps.tint}
+                style={StyleSheet.absoluteFill}
+              />
+            )}
+          </View>
+        ),
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Bugün',
-          tabBarLabel: 'Bugün',
+          title: 'Özet',
+          tabBarLabel: 'ÖZET',
           tabBarIcon: ({ color }) => (
             <TodayIcon
               color={typeof color === 'string' ? color : undefined}
@@ -265,8 +357,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="medication"
         options={{
-          title: 'İlaç & Projeksiyon',
-          tabBarLabel: 'İlaç & PK',
+          title: 'Dozlar',
+          tabBarLabel: 'DOZLAR',
           tabBarIcon: ({ color }) => (
             <MedicationIcon
               color={typeof color === 'string' ? color : undefined}
@@ -278,10 +370,23 @@ export default function TabLayout() {
       <Tabs.Screen
         name="analytics"
         options={{
-          title: 'Kilo & Sağlık',
-          tabBarLabel: 'Analiz',
+          title: 'Sonuçlar',
+          tabBarLabel: 'SONUÇLAR',
           tabBarIcon: ({ color }) => (
             <AnalyticsIcon
+              color={typeof color === 'string' ? color : undefined}
+              size={22}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: 'Takvim',
+          tabBarLabel: 'TAKVİM',
+          tabBarIcon: ({ color }) => (
+            <CalendarIcon
               color={typeof color === 'string' ? color : undefined}
               size={22}
             />
@@ -292,7 +397,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Ayarlar',
-          tabBarLabel: 'Ayarlar',
+          tabBarLabel: 'AYARLAR',
           tabBarIcon: ({ color }) => (
             <SettingsIcon
               color={typeof color === 'string' ? color : undefined}
