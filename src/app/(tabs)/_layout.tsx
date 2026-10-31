@@ -3,8 +3,8 @@ import { Platform, useColorScheme } from 'react-native';
 import { Tabs } from 'expo-router';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-function TodayIcon({ color, size }: { color?: any; size: number }) {
-  const strokeColor = typeof color === 'string' ? color : '#007AFF';
+function TodayIcon({ color, size }: { color?: string; size: number }) {
+  const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -32,8 +32,8 @@ function TodayIcon({ color, size }: { color?: any; size: number }) {
   );
 }
 
-function MedicationIcon({ color, size }: { color?: any; size: number }) {
-  const strokeColor = typeof color === 'string' ? color : '#007AFF';
+function MedicationIcon({ color, size }: { color?: string; size: number }) {
+  const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -61,8 +61,8 @@ function MedicationIcon({ color, size }: { color?: any; size: number }) {
   );
 }
 
-function AnalyticsIcon({ color, size }: { color?: any; size: number }) {
-  const strokeColor = typeof color === 'string' ? color : '#007AFF';
+function AnalyticsIcon({ color, size }: { color?: string; size: number }) {
+  const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
@@ -83,8 +83,8 @@ function AnalyticsIcon({ color, size }: { color?: any; size: number }) {
   );
 }
 
-function SettingsIcon({ color, size }: { color?: any; size: number }) {
-  const strokeColor = typeof color === 'string' ? color : '#007AFF';
+function SettingsIcon({ color, size }: { color?: string; size: number }) {
+  const strokeColor = color || '#007AFF';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Circle
@@ -114,7 +114,7 @@ export default function TabLayout() {
     tabBarBg: isDark ? '#1C1C1E' : '#FFFFFF',
     border: isDark ? '#2C2C2E' : '#E5E5EA',
     activeTint: isDark ? '#0A84FF' : '#007AFF',
-    inactiveTint: isDark ? '#8E8E93' : '#8E8E93',
+    inactiveTint: '#8E8E93',
     headerBg: isDark ? '#000000' : '#F2F2F7',
     headerText: isDark ? '#FFFFFF' : '#000000',
   };
@@ -156,7 +156,12 @@ export default function TabLayout() {
         options={{
           title: 'Bugün',
           tabBarLabel: 'Bugün',
-          tabBarIcon: ({ color }) => <TodayIcon color={color} size={22} />,
+          tabBarIcon: ({ color }) => (
+            <TodayIcon
+              color={typeof color === 'string' ? color : undefined}
+              size={22}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -164,7 +169,12 @@ export default function TabLayout() {
         options={{
           title: 'İlaç & Projeksiyon',
           tabBarLabel: 'İlaç & PK',
-          tabBarIcon: ({ color }) => <MedicationIcon color={color} size={22} />,
+          tabBarIcon: ({ color }) => (
+            <MedicationIcon
+              color={typeof color === 'string' ? color : undefined}
+              size={22}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -172,7 +182,12 @@ export default function TabLayout() {
         options={{
           title: 'Kilo & Sağlık',
           tabBarLabel: 'Analiz',
-          tabBarIcon: ({ color }) => <AnalyticsIcon color={color} size={22} />,
+          tabBarIcon: ({ color }) => (
+            <AnalyticsIcon
+              color={typeof color === 'string' ? color : undefined}
+              size={22}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -180,7 +195,12 @@ export default function TabLayout() {
         options={{
           title: 'Ayarlar',
           tabBarLabel: 'Ayarlar',
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} size={22} />,
+          tabBarIcon: ({ color }) => (
+            <SettingsIcon
+              color={typeof color === 'string' ? color : undefined}
+              size={22}
+            />
+          ),
         }}
       />
     </Tabs>
