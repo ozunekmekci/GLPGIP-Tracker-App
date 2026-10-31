@@ -83,7 +83,7 @@
 - [x] **Step 1: `medication.tsx` ekranına `AmbientMesh` ve görsel vücut enjeksiyon haritası ekle** (Abdomen, Bacak, Kol bölgeleri görsel seçim gridi).
 - [x] **Step 2: Titrasyon aşamaları rozetini ekle** (0.25 -> 0.5 -> 1.0 -> 1.7 -> 2.4 mg).
 - [x] **Step 3: `analytics.tsx` ekranına `AmbientMesh`, sıvı cam kilo hedef projeksiyonu ve semptom şiddet baloncukları ekle**.
-- [ ] **Step 4: Commit** (`git commit -m "feat: enhance medication and analytics screens with anatomical body map and liquid glass"`).
+- [x] **Step 4: Commit** (`git commit -m "feat: enhance medication and analytics screens with anatomical body map and liquid glass"`).
 
 ---
 
@@ -92,8 +92,8 @@
 **Files:**
 - Modify: `src/app/(tabs)/settings.tsx`
 
-- [ ] **Step 1: `AmbientMesh` entegre et**.
-- [ ] **Step 2: Segmented tema seçiciyi ve form girişlerini speküler sıvı cam ile cilala**.
+- [x] **Step 1: `AmbientMesh` entegre et**.
+- [x] **Step 2: Segmented tema seçiciyi ve form girişlerini speküler sıvı cam ile cilala**.
 - [ ] **Step 3: Commit** (`git commit -m "feat: polish settings screen with ambient mesh and liquid glass"`).
 
 ---

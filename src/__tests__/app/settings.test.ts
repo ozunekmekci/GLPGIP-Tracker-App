@@ -1,4 +1,5 @@
-import { THEME_OPTIONS } from '../../app/(tabs)/settings';
+import React from 'react';
+import SettingsScreen, { DAYS_OF_WEEK, THEME_OPTIONS } from '../../app/(tabs)/settings';
 import { resolveTheme } from '../../context/theme-context';
 import { getUserSettings, updateUserSettings } from '../../services/db';
 import { UserSettings } from '../../types';
@@ -35,8 +36,21 @@ jest.mock('react-native', () => ({
   Platform: { OS: 'ios' },
   StyleSheet: {
     create: (styles: Record<string, unknown>) => styles,
-    flatten: (style: unknown) => style || {},
+    flatten: (style: unknown) => {
+      if (!style) return {};
+      if (Array.isArray(style)) {
+        return Object.assign({}, ...style.filter(Boolean));
+      }
+      return style;
+    },
     hairlineWidth: 0.5,
+    absoluteFill: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+    },
   },
   View: 'View',
   Text: 'Text',
@@ -46,6 +60,11 @@ jest.mock('react-native', () => ({
   KeyboardAvoidingView: 'KeyboardAvoidingView',
   ActivityIndicator: 'ActivityIndicator',
   Alert: { alert: jest.fn() },
+  Dimensions: {
+    get: jest.fn(() => ({ width: 390, height: 844 })),
+  },
+  processColor: jest.fn((c) => c),
+  useColorScheme: jest.fn(() => 'dark'),
 }));
 
 jest.mock('expo-router', () => ({
@@ -56,6 +75,19 @@ jest.mock('expo-blur', () => ({
   BlurView: 'BlurView',
 }));
 
+jest.mock('react-native-svg', () => ({
+  __esModule: true,
+  default: 'Svg',
+  Svg: 'Svg',
+  Defs: 'Defs',
+  LinearGradient: 'LinearGradient',
+  RadialGradient: 'RadialGradient',
+  Stop: 'Stop',
+  Circle: 'Circle',
+  Rect: 'Rect',
+  Path: 'Path',
+}));
+
 describe('Settings Theme Segmented Control & Configuration', () => {
   it('defines 3 iOS segmented theme options: system, light, dark', () => {
     expect(THEME_OPTIONS).toHaveLength(3);
@@ -63,6 +95,13 @@ describe('Settings Theme Segmented Control & Configuration', () => {
     expect(THEME_OPTIONS.find((o) => o.id === 'system')?.label).toBe('Sistem 📱');
     expect(THEME_OPTIONS.find((o) => o.id === 'light')?.label).toBe('Açık ☀️');
     expect(THEME_OPTIONS.find((o) => o.id === 'dark')?.label).toBe('Koyu 🌙');
+  });
+
+  it('defines 7 days of the week starting from Sunday (0: Paz)', () => {
+    expect(DAYS_OF_WEEK).toHaveLength(7);
+    expect(DAYS_OF_WEEK[0]).toEqual({ id: 0, label: 'Paz' });
+    expect(DAYS_OF_WEEK[1]).toEqual({ id: 1, label: 'Pzt' });
+    expect(DAYS_OF_WEEK[6]).toEqual({ id: 6, label: 'Cmt' });
   });
 
   it('persists theme preferences correctly to storage', async () => {
@@ -99,5 +138,11 @@ describe('Settings Theme Segmented Control & Configuration', () => {
     const forcedDark = resolveTheme('dark', 'light');
     expect(forcedDark.isDark).toBe(true);
     expect(forcedDark.tokens.bg).toBe('#000000');
+  });
+
+  it('exports SettingsScreen as a valid React component function', () => {
+    expect(typeof SettingsScreen).toBe('function');
+    const element = React.createElement(SettingsScreen);
+    expect(React.isValidElement(element)).toBe(true);
   });
 });
