@@ -34,16 +34,16 @@
 - Modify: `src/app/(tabs)/_layout.tsx`
 - Modify: `src/__tests__/app/tab-layout.test.ts`
 
-- [ ] **Step 1: TabBar'ı ekran tabanından 24pt yukarıda yüzen yuvarlatılmış kapsül dock haline getir** (`borderRadius: 34`, `bottom: 24`, `left: 16`, `right: 16`, `height: 68`, derin yumuşak gölge ve üst ışık yansıması).
-- [ ] **Step 2: 5 Sekmeyi yapılandır**:
+- [x] **Step 1: TabBar'ı ekran tabanından 24pt yukarıda yüzen yuvarlatılmış kapsül dock haline getir** (`borderRadius: 34`, `bottom: 24`, `left: 16`, `right: 16`, `height: 68`, derin yumuşak gölge ve üst ışık yansıması).
+- [x] **Step 2: 5 Sekmeyi yapılandır**:
   1. `index` -> `ÖZET`
   2. `medication` -> `DOZLAR`
   3. `analytics` -> `SONUÇLAR`
   4. `calendar` -> `TAKVİM`
   5. `settings` -> `AYARLAR`
-- [ ] **Step 3: Aktif sekme için sıvı cam hap göstergesi ve SVG ikonları ekle**.
-- [ ] **Step 4: `tab-layout.test.ts` testlerini güncelle ve çalıştır**.
-- [ ] **Step 5: Commit** (`git commit -m "feat: implement CYL floating capsule tab bar with 5 tabs"`).
+- [x] **Step 3: Aktif sekme için sıvı cam hap göstergesi ve SVG ikonları ekle**.
+- [x] **Step 4: `tab-layout.test.ts` testlerini güncelle ve çalıştır**.
+- [x] **Step 5: Commit** (`git commit -m "feat: implement CYL floating capsule tab bar with 5 tabs"`).
 
 ---
 
