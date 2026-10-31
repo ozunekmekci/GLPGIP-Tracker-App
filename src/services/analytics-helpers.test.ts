@@ -152,8 +152,9 @@ describe('Analytics & Clinical Export Helpers', () => {
     it('returns fallback info when no injections exist', () => {
       const info = calculateNextInjectionInfo([]);
       expect(info.nextDate).toBeNull();
-      expect(info.countdownText).toContain('İlk doz');
+      expect(info.countdownText).toBe('İlk dozunuzu kaydetmek için dokunun');
       expect(info.isOverdue).toBe(false);
+      expect(info.isFirstDose).toBe(true);
     });
 
     it('calculates remaining countdown when next injection is in the future', () => {
@@ -175,6 +176,7 @@ describe('Analytics & Clinical Export Helpers', () => {
 
       const info = calculateNextInjectionInfo(injections, undefined, now);
       expect(info.isOverdue).toBe(false);
+      expect(info.isFirstDose).toBe(false);
       expect(info.daysRemaining).toBe(3);
       expect(info.countdownText).toBe('3 gün 0 saat kaldı');
     });
@@ -197,7 +199,31 @@ describe('Analytics & Clinical Export Helpers', () => {
 
       const info = calculateNextInjectionInfo(injections, undefined, now);
       expect(info.isOverdue).toBe(true);
+      expect(info.isFirstDose).toBe(false);
       expect(info.countdownText).toContain('gecikti');
+    });
+
+    it('filters out deleted injections when determining next injection info', () => {
+      const now = new Date('2026-10-31T12:00:00.000Z').getTime();
+      const injectedAt = new Date(now - 2 * 24 * 3600 * 1000).toISOString();
+
+      const injections: Injection[] = [
+        {
+          id: 'inj1',
+          medicationId: 'med1',
+          doseMg: 0.5,
+          injectedAt,
+          site: 'abdomen_left',
+          deletedAt: '2026-10-30T10:00:00.000Z',
+          createdAt: injectedAt,
+          updatedAt: injectedAt,
+        },
+      ];
+
+      const info = calculateNextInjectionInfo(injections, undefined, now);
+      expect(info.isFirstDose).toBe(true);
+      expect(info.nextDate).toBeNull();
+      expect(info.countdownText).toBe('İlk dozunuzu kaydetmek için dokunun');
     });
   });
 

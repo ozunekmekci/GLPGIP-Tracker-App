@@ -188,6 +188,7 @@ export interface NextInjectionInfo {
   isOverdue: boolean;
   daysRemaining: number;
   hoursRemaining: number;
+  isFirstDose?: boolean;
 }
 
 export function calculateNextInjectionInfo(
@@ -204,10 +205,11 @@ export function calculateNextInjectionInfo(
   if (activeInjections.length === 0) {
     return {
       nextDate: null,
-      countdownText: 'İlk doz planlanmadı',
+      countdownText: 'İlk dozunuzu kaydetmek için dokunun',
       isOverdue: false,
       daysRemaining: 0,
       hoursRemaining: 0,
+      isFirstDose: true,
     };
   }
 
@@ -230,6 +232,7 @@ export function calculateNextInjectionInfo(
       isOverdue: true,
       daysRemaining: -days,
       hoursRemaining: -hours,
+      isFirstDose: false,
     };
   }
 
@@ -251,6 +254,7 @@ export function calculateNextInjectionInfo(
     isOverdue: false,
     daysRemaining: days,
     hoursRemaining: hours,
+    isFirstDose: false,
   };
 }
 
