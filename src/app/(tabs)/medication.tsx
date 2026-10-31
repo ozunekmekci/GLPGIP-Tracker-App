@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme,
 } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Injection, InjectionSite, Medication } from '../../types';
@@ -23,6 +22,8 @@ import {
   ROTATION_ORDER,
   getSiteRotationHistory,
 } from '../../services/rotation-engine';
+import { useAppTheme } from '../../context/theme-context';
+import { GlassCard } from '../../components/glass-card';
 
 function formatDate(isoStr: string): string {
   try {
@@ -53,20 +54,7 @@ function formatRelativeOrDate(isoStr: string | null): string {
 }
 
 export default function MedicationScreen() {
-  const isDark = useColorScheme() === 'dark';
-
-  const colors = {
-    bg: isDark ? '#000000' : '#F2F2F7',
-    card: isDark ? '#1C1C1E' : '#FFFFFF',
-    border: isDark ? '#2C2C2E' : '#E5E5EA',
-    textPrimary: isDark ? '#FFFFFF' : '#1C1C1E',
-    textSecondary: isDark ? '#8E8E93' : '#6C6C70',
-    accent: isDark ? '#0A84FF' : '#007AFF',
-    accentBg: isDark ? '#142845' : '#EBF5FF',
-    badgeBg: isDark ? '#2C2C2E' : '#F2F2F7',
-    danger: isDark ? '#FF453A' : '#FF3B30',
-    dangerBg: isDark ? '#3A1412' : '#FFEBEA',
-  };
+  const { tokens, isDark } = useAppTheme();
 
   const [isLoading, setIsLoading] = useState(true);
   const [injections, setInjections] = useState<Injection[]>([]);
@@ -128,9 +116,9 @@ export default function MedicationScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+      <View style={[styles.center, { backgroundColor: tokens.bg }]}>
+        <ActivityIndicator size="large" color={tokens.accent} />
+        <Text style={[styles.loadingText, { color: tokens.textSecondary }]}>
           Farmakokinetik veriler hazırlanıyor...
         </Text>
       </View>
@@ -139,36 +127,38 @@ export default function MedicationScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.bg }]}
+      style={[styles.container, { backgroundColor: tokens.bg }]}
       contentContainerStyle={styles.content}>
       {/* Top CTA Row */}
       <View style={styles.topRow}>
-        <Text style={[styles.screenHeadline, { color: colors.textPrimary }]}>
+        <Text style={[styles.screenHeadline, { color: tokens.textPrimary }]}>
           Farmakokinetik & Doz Takibi
         </Text>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Yeni enjeksiyon kaydet"
           onPress={() => router.push('/modal-log-injection')}
-          style={[styles.addDoseButton, { backgroundColor: colors.accent }]}>
+          style={[styles.addDoseButton, { backgroundColor: tokens.accent }]}>
           <Text style={styles.addDoseButtonText}>+ Yeni Enjeksiyon</Text>
         </Pressable>
       </View>
 
-      {/* PK Chart Component */}
-      <PKChart
-        injections={injections}
-        halfLifeHours={activeMedication?.halfLifeHours || 168}
-        height={220}
-      />
+      {/* PK Chart Container */}
+      <GlassCard style={styles.card}>
+        <PKChart
+          injections={injections}
+          halfLifeHours={activeMedication?.halfLifeHours || 168}
+          height={220}
+        />
+      </GlassCard>
 
       {/* Anatomical Site Rotation Summary Card */}
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <GlassCard style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
             Enjeksiyon Bölgeleri & Rotasyon
           </Text>
-          <Text style={[styles.subText, { color: colors.textSecondary }]}>
+          <Text style={[styles.subText, { color: tokens.textSecondary }]}>
             Lipohipertrofiyi önlemek için rotasyon önerilir
           </Text>
         </View>
@@ -182,18 +172,20 @@ export default function MedicationScreen() {
                 style={[
                   styles.siteBox,
                   {
-                    backgroundColor: colors.bg,
-                    borderColor: colors.border,
+                    backgroundColor: isDark
+                      ? 'rgba(255, 255, 255, 0.05)'
+                      : 'rgba(0, 0, 0, 0.03)',
+                    borderColor: tokens.cardBorder,
                   },
                 ]}>
-                <Text style={[styles.siteName, { color: colors.textPrimary }]}>
+                <Text style={[styles.siteName, { color: tokens.textPrimary }]}>
                   {stats.displayName}
                 </Text>
                 <View style={styles.siteMetaRow}>
-                  <Text style={[styles.siteCountBadge, { color: colors.accent }]}>
+                  <Text style={[styles.siteCountBadge, { color: tokens.accent }]}>
                     {stats.count} enjeksiyon
                   </Text>
-                  <Text style={[styles.siteLastUsed, { color: colors.textSecondary }]}>
+                  <Text style={[styles.siteLastUsed, { color: tokens.textSecondary }]}>
                     {formatRelativeOrDate(stats.lastUsedAt)}
                   </Text>
                 </View>
@@ -201,22 +193,22 @@ export default function MedicationScreen() {
             );
           })}
         </View>
-      </View>
+      </GlassCard>
 
       {/* Chronological Injection History List */}
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <GlassCard style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
             Enjeksiyon Geçmişi ({injections.length})
           </Text>
         </View>
 
         {injections.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+            <Text style={[styles.emptyTitle, { color: tokens.textPrimary }]}>
               Henüz enjeksiyon kaydı bulunmuyor
             </Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+            <Text style={[styles.emptySubtitle, { color: tokens.textSecondary }]}>
               İlk dozunuzu kaydettiğinizde burada kronolojik olarak listelenecektir.
             </Text>
           </View>
@@ -228,28 +220,36 @@ export default function MedicationScreen() {
                 <View key={inj.id}>
                   {index > 0 && (
                     <View
-                      style={[styles.listDivider, { backgroundColor: colors.border }]}
+                      style={[styles.listDivider, { backgroundColor: tokens.cardBorder }]}
                     />
                   )}
                   <View style={styles.historyItemRow}>
                     <View style={styles.historyMainContent}>
                       <View style={styles.historyTopRow}>
-                        <Text style={[styles.historyDose, { color: colors.textPrimary }]}>
+                        <Text style={[styles.historyDose, { color: tokens.textPrimary }]}>
                           {inj.doseMg} mg
                         </Text>
-                        <View style={[styles.siteBadge, { backgroundColor: colors.badgeBg }]}>
-                          <Text style={[styles.siteBadgeText, { color: colors.textSecondary }]}>
+                        <View
+                          style={[
+                            styles.siteBadge,
+                            {
+                              backgroundColor: isDark
+                                ? 'rgba(255, 255, 255, 0.08)'
+                                : 'rgba(0, 0, 0, 0.05)',
+                            },
+                          ]}>
+                          <Text style={[styles.siteBadgeText, { color: tokens.textSecondary }]}>
                             {siteStat?.displayName || inj.site}
                           </Text>
                         </View>
                       </View>
 
-                      <Text style={[styles.historyDate, { color: colors.textSecondary }]}>
+                      <Text style={[styles.historyDate, { color: tokens.textSecondary }]}>
                         {formatDate(inj.injectedAt)}
                       </Text>
 
                       {inj.notes ? (
-                        <Text style={[styles.historyNotes, { color: colors.textSecondary }]}>
+                        <Text style={[styles.historyNotes, { color: tokens.textSecondary }]}>
                           {inj.notes}
                         </Text>
                       ) : null}
@@ -263,9 +263,13 @@ export default function MedicationScreen() {
                       onPress={() => handleDelete(inj)}
                       style={[
                         styles.deleteButton,
-                        { backgroundColor: colors.dangerBg },
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(255, 59, 48, 0.18)'
+                            : 'rgba(255, 59, 48, 0.12)',
+                        },
                       ]}>
-                      <Text style={[styles.deleteButtonText, { color: colors.danger }]}>
+                      <Text style={[styles.deleteButtonText, { color: tokens.accentRed }]}>
                         Sil
                       </Text>
                     </Pressable>
@@ -275,7 +279,7 @@ export default function MedicationScreen() {
             })}
           </View>
         )}
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }
@@ -323,8 +327,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   card: {
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
     padding: 18,
     gap: 14,
   },
@@ -335,6 +337,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     letterSpacing: -0.3,
+    fontVariant: ['tabular-nums'],
   },
   subText: {
     fontSize: 13,
@@ -368,6 +371,7 @@ const styles = StyleSheet.create({
   },
   siteLastUsed: {
     fontSize: 12,
+    fontVariant: ['tabular-nums'],
   },
   historyList: {
     gap: 2,
@@ -407,6 +411,7 @@ const styles = StyleSheet.create({
   },
   historyDate: {
     fontSize: 13,
+    fontVariant: ['tabular-nums'],
   },
   historyNotes: {
     fontSize: 13,

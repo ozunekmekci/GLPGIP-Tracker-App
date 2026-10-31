@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme,
 } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { SymptomLog, UserSettings, WeightLog } from '../../types';
@@ -23,6 +22,8 @@ import {
   calculateSymptomStats,
   calculateWeightMetrics,
 } from '../../services/analytics-helpers';
+import { useAppTheme } from '../../context/theme-context';
+import { GlassCard } from '../../components/glass-card';
 
 function formatDate(isoStr: string): string {
   try {
@@ -40,24 +41,7 @@ function formatDate(isoStr: string): string {
 }
 
 export default function AnalyticsScreen() {
-  const isDark = useColorScheme() === 'dark';
-
-  const colors = {
-    bg: isDark ? '#000000' : '#F2F2F7',
-    card: isDark ? '#1C1C1E' : '#FFFFFF',
-    border: isDark ? '#2C2C2E' : '#E5E5EA',
-    textPrimary: isDark ? '#FFFFFF' : '#1C1C1E',
-    textSecondary: isDark ? '#8E8E93' : '#6C6C70',
-    accent: isDark ? '#0A84FF' : '#007AFF',
-    accentBg: isDark ? '#142845' : '#EBF5FF',
-    success: isDark ? '#30D158' : '#34C759',
-    successBg: isDark ? '#143820' : '#E8F8ED',
-    warning: isDark ? '#FF9F0A' : '#FF9500',
-    warningBg: isDark ? '#3D2808' : '#FFF5E5',
-    danger: isDark ? '#FF453A' : '#FF3B30',
-    dangerBg: isDark ? '#3A1412' : '#FFEBEA',
-    badgeBg: isDark ? '#2C2C2E' : '#F2F2F7',
-  };
+  const { tokens, isDark } = useAppTheme();
 
   const [isLoading, setIsLoading] = useState(true);
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
@@ -119,9 +103,9 @@ export default function AnalyticsScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+      <View style={[styles.center, { backgroundColor: tokens.bg }]}>
+        <ActivityIndicator size="large" color={tokens.accent} />
+        <Text style={[styles.loadingText, { color: tokens.textSecondary }]}>
           Analiz verileri hesaplanıyor...
         </Text>
       </View>
@@ -130,11 +114,11 @@ export default function AnalyticsScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.bg }]}
+      style={[styles.container, { backgroundColor: tokens.bg }]}
       contentContainerStyle={styles.content}>
       {/* Top Action CTA Header */}
       <View style={styles.topRow}>
-        <Text style={[styles.screenHeadline, { color: colors.textPrimary }]}>
+        <Text style={[styles.screenHeadline, { color: tokens.textPrimary }]}>
           Kilo & Yan Etki Analizi
         </Text>
         <View style={styles.actionButtonsGroup}>
@@ -142,7 +126,7 @@ export default function AnalyticsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Yeni kilo kaydet"
             onPress={() => router.push('/modal-log-weight')}
-            style={[styles.smallActionButton, { backgroundColor: colors.accent }]}>
+            style={[styles.smallActionButton, { backgroundColor: tokens.accent }]}>
             <Text style={styles.smallActionText}>+ Kilo</Text>
           </Pressable>
 
@@ -150,16 +134,25 @@ export default function AnalyticsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Yeni yan etki kaydet"
             onPress={() => router.push('/modal-log-symptom')}
-            style={[styles.smallActionButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <Text style={[styles.smallActionText, { color: colors.textPrimary }]}>+ Yan Etki</Text>
+            style={[
+              styles.smallActionButton,
+              {
+                backgroundColor: tokens.cardBg,
+                borderColor: tokens.cardBorder,
+                borderWidth: 1,
+              },
+            ]}>
+            <Text style={[styles.smallActionText, { color: tokens.textPrimary }]}>
+              + Yan Etki
+            </Text>
           </Pressable>
         </View>
       </View>
 
       {/* Metrics Cards Grid */}
       <View style={styles.metricsGrid}>
-        <View style={[styles.metricCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.metricCardLabel, { color: colors.textSecondary }]}>
+        <GlassCard style={styles.metricCard}>
+          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
             Toplam Değişim
           </Text>
           <Text
@@ -168,31 +161,31 @@ export default function AnalyticsScreen() {
               {
                 color:
                   weightMetrics.totalChangeKg === null
-                    ? colors.textPrimary
+                    ? tokens.textPrimary
                     : weightMetrics.totalChangeKg <= 0
-                    ? colors.success
-                    : colors.warning,
+                    ? tokens.accentGreen
+                    : tokens.accentOrange,
               },
             ]}>
             {weightMetrics.totalChangeKg !== null
               ? `${weightMetrics.totalChangeKg > 0 ? '+' : ''}${weightMetrics.totalChangeKg} kg`
               : '—'}
           </Text>
-        </View>
+        </GlassCard>
 
-        <View style={[styles.metricCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.metricCardLabel, { color: colors.textSecondary }]}>
+        <GlassCard style={styles.metricCard}>
+          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
             Haftalık Hız
           </Text>
-          <Text style={[styles.metricCardValue, { color: colors.textPrimary }]}>
+          <Text style={[styles.metricCardValue, { color: tokens.textPrimary }]}>
             {weightMetrics.weeklyRateKg !== null
               ? `${weightMetrics.weeklyRateKg > 0 ? '+' : ''}${weightMetrics.weeklyRateKg} kg/hf`
               : '—'}
           </Text>
-        </View>
+        </GlassCard>
 
-        <View style={[styles.metricCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.metricCardLabel, { color: colors.textSecondary }]}>
+        <GlassCard style={styles.metricCard}>
+          <Text style={[styles.metricCardLabel, { color: tokens.textSecondary }]}>
             Hedefe Kalan
           </Text>
           <Text
@@ -200,8 +193,8 @@ export default function AnalyticsScreen() {
               styles.metricCardValue,
               {
                 color: weightMetrics.isTargetReached
-                  ? colors.success
-                  : colors.accent,
+                  ? tokens.accentGreen
+                  : tokens.accent,
               },
             ]}>
             {weightMetrics.isTargetReached
@@ -210,23 +203,25 @@ export default function AnalyticsScreen() {
               ? `${weightMetrics.remainingToTargetKg} kg`
               : 'Hedef yok'}
           </Text>
-        </View>
+        </GlassCard>
       </View>
 
-      {/* Weight Chart Component */}
-      <WeightChart
-        weightLogs={weightLogs}
-        targetWeightKg={settings?.targetWeightKg}
-        height={220}
-      />
+      {/* Weight Chart Container */}
+      <GlassCard style={styles.card}>
+        <WeightChart
+          weightLogs={weightLogs}
+          targetWeightKg={settings?.targetWeightKg}
+          height={220}
+        />
+      </GlassCard>
 
       {/* Adverse Side Effects Breakdown (Last 30 Days) */}
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <GlassCard style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
             Yan Etki Dağılımı (Son 30 Gün)
           </Text>
-          <Text style={[styles.subText, { color: colors.textSecondary }]}>
+          <Text style={[styles.subText, { color: tokens.textSecondary }]}>
             {symptomStats.totalCount > 0
               ? `${symptomStats.totalCount} kayıt • Ort. Şiddet: ${symptomStats.averageSeverity} / 5`
               : 'Son 30 günde kaydedilen yan etki yok'}
@@ -240,16 +235,18 @@ export default function AnalyticsScreen() {
               style={[
                 styles.symptomRow,
                 {
-                  backgroundColor: colors.bg,
-                  borderColor: colors.border,
+                  backgroundColor: isDark
+                    ? 'rgba(255, 255, 255, 0.05)'
+                    : 'rgba(0, 0, 0, 0.03)',
+                  borderColor: tokens.cardBorder,
                 },
               ]}>
               <View style={styles.symptomLeft}>
-                <Text style={[styles.symptomName, { color: colors.textPrimary }]}>
+                <Text style={[styles.symptomName, { color: tokens.textPrimary }]}>
                   {item.label}
                 </Text>
                 {item.count > 0 ? (
-                  <Text style={[styles.symptomSeverityText, { color: colors.textSecondary }]}>
+                  <Text style={[styles.symptomSeverityText, { color: tokens.textSecondary }]}>
                     Ortalama Şiddet: {item.averageSeverity} / 5
                   </Text>
                 ) : null}
@@ -259,14 +256,21 @@ export default function AnalyticsScreen() {
                 style={[
                   styles.symptomBadge,
                   {
-                    backgroundColor: item.count > 0 ? colors.accentBg : colors.badgeBg,
+                    backgroundColor:
+                      item.count > 0
+                        ? isDark
+                          ? 'rgba(0, 122, 255, 0.18)'
+                          : 'rgba(0, 122, 255, 0.10)'
+                        : isDark
+                        ? 'rgba(255, 255, 255, 0.08)'
+                        : 'rgba(0, 0, 0, 0.05)',
                   },
                 ]}>
                 <Text
                   style={[
                     styles.symptomBadgeText,
                     {
-                      color: item.count > 0 ? colors.accent : colors.textSecondary,
+                      color: item.count > 0 ? tokens.accent : tokens.textSecondary,
                     },
                   ]}>
                   {item.count} kez
@@ -275,22 +279,22 @@ export default function AnalyticsScreen() {
             </View>
           ))}
         </View>
-      </View>
+      </GlassCard>
 
       {/* Weight History Log List */}
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <GlassCard style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+          <Text style={[styles.cardTitle, { color: tokens.textPrimary }]}>
             Kilo Kayıtları Geçmişi ({weightLogs.length})
           </Text>
         </View>
 
         {weightLogs.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
+            <Text style={[styles.emptyTitle, { color: tokens.textPrimary }]}>
               Henüz kilo kaydı bulunmuyor
             </Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+            <Text style={[styles.emptySubtitle, { color: tokens.textSecondary }]}>
               İlerlemenizi takip etmek için ilk kilo ölçümünüzü girin.
             </Text>
           </View>
@@ -300,15 +304,15 @@ export default function AnalyticsScreen() {
               <View key={log.id}>
                 {index > 0 && (
                   <View
-                    style={[styles.listDivider, { backgroundColor: colors.border }]}
+                    style={[styles.listDivider, { backgroundColor: tokens.cardBorder }]}
                   />
                 )}
                 <View style={styles.historyItemRow}>
                   <View style={styles.historyMainContent}>
-                    <Text style={[styles.historyWeight, { color: colors.textPrimary }]}>
+                    <Text style={[styles.historyWeight, { color: tokens.textPrimary }]}>
                       {log.weightKg.toFixed(1)} kg
                     </Text>
-                    <Text style={[styles.historyDate, { color: colors.textSecondary }]}>
+                    <Text style={[styles.historyDate, { color: tokens.textSecondary }]}>
                       {formatDate(log.loggedAt)}
                     </Text>
                   </View>
@@ -321,9 +325,13 @@ export default function AnalyticsScreen() {
                     onPress={() => handleDeleteWeight(log)}
                     style={[
                       styles.deleteButton,
-                      { backgroundColor: colors.dangerBg },
+                      {
+                        backgroundColor: isDark
+                          ? 'rgba(255, 59, 48, 0.18)'
+                          : 'rgba(255, 59, 48, 0.12)',
+                      },
                     ]}>
-                    <Text style={[styles.deleteButtonText, { color: colors.danger }]}>
+                    <Text style={[styles.deleteButtonText, { color: tokens.accentRed }]}>
                       Sil
                     </Text>
                   </Pressable>
@@ -332,7 +340,7 @@ export default function AnalyticsScreen() {
             ))}
           </View>
         )}
-      </View>
+      </GlassCard>
     </ScrollView>
   );
 }
@@ -389,8 +397,6 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     flex: 1,
-    borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
     padding: 14,
     gap: 6,
   },
@@ -405,8 +411,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   card: {
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
     padding: 18,
     gap: 14,
   },
@@ -417,9 +421,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     letterSpacing: -0.3,
+    fontVariant: ['tabular-nums'],
   },
   subText: {
     fontSize: 13,
+    fontVariant: ['tabular-nums'],
   },
   symptomsList: {
     gap: 8,
@@ -481,6 +487,7 @@ const styles = StyleSheet.create({
   },
   historyDate: {
     fontSize: 13,
+    fontVariant: ['tabular-nums'],
   },
   deleteButton: {
     minHeight: 44,
