@@ -1,4 +1,4 @@
-import { THEME_OPTIONS } from './settings';
+import { THEME_OPTIONS } from '../../app/(tabs)/settings';
 import { resolveTheme } from '../../context/theme-context';
 import { getUserSettings, updateUserSettings } from '../../services/db';
 import { UserSettings } from '../../types';

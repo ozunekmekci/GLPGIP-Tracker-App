@@ -2,7 +2,7 @@ import { LIGHT_TOKENS, DARK_TOKENS } from '../../context/theme-context';
 import {
   getTabScreenOptions,
   getTabBarBackgroundProps,
-} from './_layout';
+} from '../../app/(tabs)/_layout';
 
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: jest.fn(),
