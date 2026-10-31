@@ -660,6 +660,7 @@ export default function SettingsScreen() {
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Önizlemeyi kapat"
+                    hitSlop={6}
                     onPress={() => setExportPreview(null)}
                     style={styles.closePreviewButton}>
                     <Text style={[styles.closePreviewText, { color: tokens.textSecondary }]}>
@@ -1050,7 +1051,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   closePreviewButton: {
-    minHeight: 36,
+    minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: 8,
   },

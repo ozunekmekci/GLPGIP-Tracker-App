@@ -94,7 +94,7 @@
 
 - [x] **Step 1: `AmbientMesh` entegre et**.
 - [x] **Step 2: Segmented tema seçiciyi ve form girişlerini speküler sıvı cam ile cilala**.
-- [ ] **Step 3: Commit** (`git commit -m "feat: polish settings screen with ambient mesh and liquid glass"`).
+- [x] **Step 3: Commit** (`git commit -m "feat: polish settings screen with ambient mesh and liquid glass"`).
 
 ---
 
